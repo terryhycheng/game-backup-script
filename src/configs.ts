@@ -1,0 +1,23 @@
+import { Config, Context, Layer } from "effect";
+
+export const EnvConfig = Config.all({
+	s3AccessKeyId: Config.redacted(Config.string("S3_ACCESS_KEY_ID")),
+	s3SecretAccessKey: Config.redacted(Config.string("S3_SECRET_ACCESS_KEY")),
+});
+
+export class GameBackupConfigService extends Context.Tag("GameConfig")<
+	GameBackupConfigService,
+	{
+		readonly folderLocation: string;
+		readonly bucketName: string;
+		readonly maxBackups: number;
+	}
+>() {}
+
+const PalBackupConfig = Config.all({
+	folderLocation: Config.string("FOLDER_LOCATION").pipe(Config.withDefault(".")),
+	bucketName: Config.string("BUCKET_NAME").pipe(Config.withDefault("palworld")),
+	maxBackups: Config.number("MAX_BACKUPS").pipe(Config.withDefault(30)),
+}).pipe(Config.nested("PAL"));
+
+export const PalBackupConfigLive = Layer.effect(GameBackupConfigService, PalBackupConfig);

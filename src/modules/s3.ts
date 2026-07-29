@@ -1,6 +1,6 @@
 import { DeleteObjectCommand, ListObjectsCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Data, Effect, Redacted } from "effect";
-import { EnvConfig } from "./env-config";
+import { EnvConfig } from "../configs";
 
 export class S3Error extends Data.TaggedError("S3Error")<{
 	readonly message: string;
@@ -28,13 +28,23 @@ export class S3 extends Effect.Service<S3>()("S3Service", {
 			const command = new ListObjectsCommand({ Bucket: bucketName });
 
 			return Effect.tryPromise({
-				try: () => client.send(command),
+				try: () =>
+					client.send(command).then((response) => {
+						if (!response.Contents) return [];
+						return response.Contents.map((file) => {
+							if (!file.Key) throw new Error(`no key in file - ${file}`);
+							return {
+								key: file.Key,
+								lastModified: file.LastModified,
+							};
+						});
+					}),
 				catch: (error) => new S3Error({ message: "failed to list objects in s3", cause: error }),
 			});
 		};
 
-		const putObject = (bucketName: string, key: string) => {
-			const command = new PutObjectCommand({ Bucket: bucketName, Key: key });
+		const putObject = (bucketName: string, key: string, body: Uint8Array) => {
+			const command = new PutObjectCommand({ Bucket: bucketName, Key: key, Body: body });
 
 			return Effect.tryPromise({
 				try: () => client.send(command),

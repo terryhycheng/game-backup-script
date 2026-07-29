@@ -4,7 +4,7 @@ export default defineConfig({
 	test: {
 		watch: false,
 		coverage: {
-			include: ["src/**/*.ts"],
+			include: ["src/modules/**/*.ts"],
 			enabled: true,
 		},
 	},

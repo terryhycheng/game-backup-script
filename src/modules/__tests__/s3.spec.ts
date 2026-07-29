@@ -22,7 +22,8 @@ describe("S3ServiceTests", () => {
 
 	describe("listObjects", () => {
 		it("should list objects", async () => {
-			(client.send as Mock).mockResolvedValueOnce("hello");
+			const expectedOutcome = { Contents: [{ Key: "test-key", LastModified: new Date() }] };
+			(client.send as Mock).mockResolvedValueOnce(expectedOutcome);
 
 			const program = Effect.gen(function* () {
 				const s3 = yield* S3;
@@ -42,7 +43,65 @@ describe("S3ServiceTests", () => {
 			expect(command.input).toEqual({ Bucket: "test-bucket" });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
-			expect(result).toEqual("hello");
+			expect(result).toEqual(
+				expectedOutcome.Contents.map((file) => ({ key: file.Key, lastModified: file.LastModified })),
+			);
+		});
+
+		it("should return an empty array if no files on bucket", async () => {
+			const expectedOutcome = {};
+			(client.send as Mock).mockResolvedValueOnce(expectedOutcome);
+
+			const program = Effect.gen(function* () {
+				const s3 = yield* S3;
+				const result = yield* s3.listObjects("test-bucket");
+				return result;
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+
+			const result = await Effect.runPromise(program);
+
+			expect(client.send).toHaveBeenCalledTimes(1);
+
+			const firstCall = (client.send as Mock).mock.calls[0];
+			expect(firstCall).toBeDefined();
+
+			const [command] = firstCall!;
+			expect(command).toBeInstanceOf(ListObjectsCommand);
+			expect(command.input).toEqual({ Bucket: "test-bucket" });
+
+			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
+			expect(result).toEqual([]);
+		});
+
+		it("should throw S3Error if one listed object has no key", async () => {
+			(client.send as Mock).mockResolvedValueOnce({
+				Contents: [{ LastModified: new Date() }],
+			});
+
+			const program = Effect.gen(function* () {
+				const s3 = yield* S3;
+				const result = yield* s3.listObjects("test-bucket");
+				return result;
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+
+			const exit = await Effect.runPromiseExit(program);
+
+			expect(Exit.isFailure(exit)).toBe(true);
+
+			if (Exit.isFailure(exit)) {
+				const failure = Cause.failureOption(exit.cause);
+
+				expect(failure._tag).toBe("Some");
+				if (failure._tag === "Some") {
+					expect(failure.value).toBeInstanceOf(S3Error);
+					expect(failure.value.message).toBe("failed to list objects in s3");
+					expect(failure.value.cause).toBeInstanceOf(Error);
+					expect((failure.value.cause as Error).message).toContain("no key in file");
+				}
+			}
+
+			expect(client.send).toHaveBeenCalledTimes(1);
+			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
 		});
 
 		it("should throw S3Error if fail to list objects", async () => {
@@ -88,7 +147,7 @@ describe("S3ServiceTests", () => {
 
 			const program = Effect.gen(function* () {
 				const s3 = yield* S3;
-				const result = yield* s3.putObject("test-bucket", "test-key");
+				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
 			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
 
@@ -101,7 +160,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(PutObjectCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key" });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key", Body: new Uint8Array() });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
 			expect(result).toEqual("hello");
@@ -112,7 +171,7 @@ describe("S3ServiceTests", () => {
 
 			const program = Effect.gen(function* () {
 				const s3 = yield* S3;
-				const result = yield* s3.putObject("test-bucket", "test-key");
+				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
 			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
 
@@ -125,7 +184,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(PutObjectCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key" });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key", Body: new Uint8Array() });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
 		});
