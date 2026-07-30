@@ -1,5 +1,7 @@
 # game-backup-script
 
+[![All Contributors](https://img.shields.io/github/all-contributors/terryhycheng/game-backup-script?color=ee8449&style=flat-square)](#contributors)
+
 Backs up a local game save directory to S3 and trims old remote backups.
 
 ## Environment
@@ -71,3 +73,33 @@ This repo uses `release-please`.
   - a Docker image to `ghcr.io/<owner>/<repo>`
 
 Version bumps come from conventional commits.
+
+## Contributing
+
+This project is mainly built around [Effect](https://effect.website) for runtime composition, dependency injection, config loading, and error handling. If you are changing the core app flow, it helps to be comfortable with a few Effect concepts first. Checking on their [well-written docs](https://www.effect.website/docs/v3/getting-started/introduction) will help you a lot.
+
+
+
+Typical local workflow:
+
+```bash
+pnpm install
+pnpm vitest run
+pnpm build
+pnpm dev
+```
+
+If you contribute release-related changes, keep commit messages in conventional commit format so `release-please` can calculate the next version correctly.
+
+## Contributors ✨
+
+Thanks goes to these wonderful people:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
