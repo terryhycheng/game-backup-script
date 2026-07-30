@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.0...game-backup-script-v1.1.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* incorrect s3 endpoint issue ([f6c9e8f](https://github.com/terryhycheng/game-backup-script/commit/f6c9e8f7416a771545c83be98de07575233acd3f))
+
 ## [1.1.0](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.0.0...game-backup-script-v1.1.0) (2026-07-30)
 
 
