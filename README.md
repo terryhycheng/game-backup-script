@@ -46,7 +46,7 @@ pnpm start
 Pull the published image:
 
 ```bash
-docker pull ghcr.io/<owner>/<repo>:latest
+docker pull ghcr.io/terryhycheng/game-backup-script:latest
 ```
 
 Run it with your env file and a mounted backup directory:
@@ -55,7 +55,7 @@ Run it with your env file and a mounted backup directory:
 docker run --rm \
   --env-file .env \
   -v /host/game-backups:/data/game-backups:ro \
-  ghcr.io/<owner>/<repo>:latest
+  ghcr.io/terryhycheng/game-backup-script:latest
 ```
 
 Make sure `GAME_FOLDER_LOCATION` inside `.env` matches the path inside the container. With the example above, use:
