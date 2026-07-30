@@ -1,4 +1,21 @@
 {
-	"projectName": "Game Backup Script",
-	"projectOwner": "Terry Cheng"
+  "projectName": "game-backup-script",
+  "projectOwner": "terryhycheng",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "terryhycheng",
+      "name": "Terry Cheng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35667554?v=4",
+      "profile": "https://github.com/terryhycheng",
+      "contributions": [
+        "code"
+      ]
+    }
+  ]
 }
