@@ -11,6 +11,7 @@ Copy `.env.example` to `.env` and fill in real values.
 ```env
 S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
+S3_ENDPOINT=https://s3.amazonaws.com
 GAME_FOLDER_LOCATION=/data/game-backups
 GAME_BUCKET_NAME=game-backups
 GAME_BUCKET_FOLDER_NAME=backups
@@ -23,6 +24,7 @@ Notes:
 - `GAME_BUCKET_NAME` is the S3 bucket used for uploads and cleanup.
 - `GAME_BUCKET_FOLDER_NAME` is the S3 key prefix used for uploads. Default: `backups`.
 - `GAME_MAX_BACKUPS` controls how many remote backups are kept.
+- `S3_ENDPOINT` is the base URL for the S3 API. Use your provider's endpoint if you are targeting S3-compatible storage.
 - The S3 client currently uses the `us-east-1` region in code.
 
 ## Run locally
