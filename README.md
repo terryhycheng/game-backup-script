@@ -1,6 +1,6 @@
-# palworld-backup-script
+# game-backup-script
 
-Backs up a local Palworld save directory to S3 and trims old remote backups.
+Backs up a local game save directory to S3 and trims old remote backups.
 
 ## Environment
 
@@ -9,16 +9,16 @@ Copy `.env.example` to `.env` and fill in real values.
 ```env
 S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
-PAL_FOLDER_LOCATION=/data/palworld/backups
-PAL_BUCKET_NAME=palworld
-PAL_MAX_BACKUPS=30
+GAME_FOLDER_LOCATION=/data/game-backups
+GAME_BUCKET_NAME=game-backups
+GAME_MAX_BACKUPS=30
 ```
 
 Notes:
 
-- `PAL_FOLDER_LOCATION` is the local directory the app reads backups from.
-- `PAL_BUCKET_NAME` is the S3 bucket used for uploads and cleanup.
-- `PAL_MAX_BACKUPS` controls how many remote backups are kept.
+- `GAME_FOLDER_LOCATION` is the local directory the app reads backups from.
+- `GAME_BUCKET_NAME` is the S3 bucket used for uploads and cleanup.
+- `GAME_MAX_BACKUPS` controls how many remote backups are kept.
 - The S3 client currently uses the `us-east-1` region in code.
 
 ## Run locally
@@ -50,14 +50,14 @@ Run it with your env file and a mounted backup directory:
 ```bash
 docker run --rm \
   --env-file .env \
-  -v /host/palworld/backups:/data/palworld/backups:ro \
+  -v /host/game-backups:/data/game-backups:ro \
   ghcr.io/<owner>/<repo>:latest
 ```
 
-Make sure `PAL_FOLDER_LOCATION` inside `.env` matches the path inside the container. With the example above, use:
+Make sure `GAME_FOLDER_LOCATION` inside `.env` matches the path inside the container. With the example above, use:
 
 ```env
-PAL_FOLDER_LOCATION=/data/palworld/backups
+GAME_FOLDER_LOCATION=/data/game-backups
 ```
 
 ## Releases

@@ -14,10 +14,10 @@ export class GameBackupConfigService extends Context.Tag("GameConfig")<
 	}
 >() {}
 
-const PalBackupConfig = Config.all({
+const GameBackupConfig = Config.all({
 	folderLocation: Config.string("FOLDER_LOCATION").pipe(Config.withDefault(".")),
-	bucketName: Config.string("BUCKET_NAME").pipe(Config.withDefault("palworld")),
+	bucketName: Config.string("BUCKET_NAME").pipe(Config.withDefault("game-backups")),
 	maxBackups: Config.number("MAX_BACKUPS").pipe(Config.withDefault(30)),
-}).pipe(Config.nested("PAL"));
+}).pipe(Config.nested("GAME"));
 
-export const PalBackupConfigLive = Layer.effect(GameBackupConfigService, PalBackupConfig);
+export const GameBackupConfigLive = Layer.effect(GameBackupConfigService, GameBackupConfig);
