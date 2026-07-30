@@ -10,6 +10,7 @@ export class GameBackupConfigService extends Context.Tag("GameConfig")<
 	{
 		readonly folderLocation: string;
 		readonly bucketName: string;
+		readonly bucketFolderName?: string;
 		readonly maxBackups: number;
 	}
 >() {}
@@ -17,6 +18,7 @@ export class GameBackupConfigService extends Context.Tag("GameConfig")<
 const GameBackupConfig = Config.all({
 	folderLocation: Config.string("FOLDER_LOCATION").pipe(Config.withDefault(".")),
 	bucketName: Config.string("BUCKET_NAME").pipe(Config.withDefault("game-backups")),
+	bucketFolderName: Config.string("BUCKET_FOLDER_NAME").pipe(Config.withDefault("backups")),
 	maxBackups: Config.number("MAX_BACKUPS").pipe(Config.withDefault(30)),
 }).pipe(Config.nested("GAME"));
 

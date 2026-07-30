@@ -1,11 +1,13 @@
 import { DeleteObjectCommand, ListObjectsCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Cause, Effect, Exit, Layer } from "effect";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { GameBackupConfigService } from "../../configs";
 import { S3, S3ClientInstance, S3Error } from "../s3";
 
 describe("S3ServiceTests", () => {
 	let client: S3Client;
 	let mockLayer: Layer.Layer<S3ClientInstance, never, never>;
+	let gameBackupConfigLayer: Layer.Layer<GameBackupConfigService, never, never>;
 
 	beforeEach(() => {
 		client = new S3Client({
@@ -18,6 +20,12 @@ describe("S3ServiceTests", () => {
 
 		client.send = vi.fn() as typeof client.send;
 		mockLayer = Layer.succeed(S3ClientInstance, new S3ClientInstance(client));
+		gameBackupConfigLayer = Layer.succeed(GameBackupConfigService, {
+			folderLocation: "/tmp/backups",
+			bucketName: "test-bucket",
+			bucketFolderName: undefined,
+			maxBackups: 5,
+		});
 	});
 
 	describe("listObjects", () => {
@@ -29,7 +37,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const result = await Effect.runPromise(program);
 
@@ -56,7 +64,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const result = await Effect.runPromise(program);
 
@@ -82,7 +90,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const exit = await Effect.runPromiseExit(program);
 
@@ -111,7 +119,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const exit = await Effect.runPromiseExit(program);
 
@@ -141,7 +149,7 @@ describe("S3ServiceTests", () => {
 		});
 	});
 
-	describe("putObject", () => {
+		describe("putObject", () => {
 		it("should put object", async () => {
 			(client.send as Mock).mockResolvedValueOnce("hello");
 
@@ -149,7 +157,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const result = await Effect.runPromise(program);
 
@@ -166,6 +174,36 @@ describe("S3ServiceTests", () => {
 			expect(result).toEqual("hello");
 		});
 
+		it("should prefix object key when bucket folder name exists", async () => {
+			(client.send as Mock).mockResolvedValueOnce("hello");
+			gameBackupConfigLayer = Layer.succeed(GameBackupConfigService, {
+				folderLocation: "/tmp/backups",
+				bucketName: "test-bucket",
+				bucketFolderName: "palworld",
+				maxBackups: 5,
+			});
+
+			const program = Effect.gen(function* () {
+				const s3 = yield* S3;
+				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
+				return result;
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+
+			const result = await Effect.runPromise(program);
+
+			expect(client.send).toHaveBeenCalledTimes(1);
+
+			const firstCall = (client.send as Mock).mock.calls[0];
+			expect(firstCall).toBeDefined();
+
+			const [command] = firstCall!;
+			expect(command).toBeInstanceOf(PutObjectCommand);
+			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "palworld/test-key", Body: new Uint8Array() });
+
+			expect(client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
+			expect(result).toEqual("hello");
+		});
+
 		it("should throw S3Error if fail to put object", async () => {
 			(client.send as Mock).mockRejectedValueOnce(new Error("error"));
 
@@ -173,7 +211,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			await expect(Effect.runPromise(program)).rejects.toThrow("failed to put object to s3");
 
@@ -198,7 +236,7 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.deleteObject("test-bucket", "test-key");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
 
 			const result = await Effect.runPromise(program);
 
@@ -222,8 +260,8 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.deleteObject("test-bucket", "test-key");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, mockLayer)));
-
+			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			
 			await expect(Effect.runPromise(program)).rejects.toThrow("failed to delete object from s3");
 
 			expect(client.send).toHaveBeenCalledTimes(1);

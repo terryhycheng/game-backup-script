@@ -1,6 +1,6 @@
 import { DeleteObjectCommand, ListObjectsCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Data, Effect, Redacted } from "effect";
-import { EnvConfig } from "../configs";
+import { EnvConfig, GameBackupConfigService } from "../configs";
 
 export class S3Error extends Data.TaggedError("S3Error")<{
 	readonly message: string;
@@ -24,6 +24,7 @@ export class S3ClientInstance extends Effect.Service<S3ClientInstance>()("S3Serv
 export class S3 extends Effect.Service<S3>()("S3Service", {
 	effect: Effect.gen(function* () {
 		const client = yield* S3ClientInstance;
+		const gameConfig = yield* GameBackupConfigService;
 		const listObjects = (bucketName: string) => {
 			const command = new ListObjectsCommand({ Bucket: bucketName });
 
@@ -44,7 +45,11 @@ export class S3 extends Effect.Service<S3>()("S3Service", {
 		};
 
 		const putObject = (bucketName: string, key: string, body: Uint8Array) => {
-			const command = new PutObjectCommand({ Bucket: bucketName, Key: key, Body: body });
+			const command = new PutObjectCommand({
+				Bucket: bucketName,
+				Key: `${gameConfig.bucketFolderName ? `${gameConfig.bucketFolderName}/` : ""}${key}`,
+				Body: body,
+			});
 
 			return Effect.tryPromise({
 				try: () => client.send(command),
