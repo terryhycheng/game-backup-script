@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.1...game-backup-script-v1.1.2) (2026-07-30)
+
+
+### Bug Fixes
+
+* s3 region issue ([b5506d7](https://github.com/terryhycheng/game-backup-script/commit/b5506d741425664aa53a5f19475b26d0cc3d9a93))
+
 ## [1.1.1](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.0...game-backup-script-v1.1.1) (2026-07-30)
 
 
