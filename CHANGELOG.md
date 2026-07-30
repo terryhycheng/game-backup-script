@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.0.0...game-backup-script-v1.1.0) (2026-07-30)
+
+
+### Features
+
+* add `bucketFolderName` ([08ddbe8](https://github.com/terryhycheng/game-backup-script/commit/08ddbe844c7c1baf12d080ebeff1eb1f24ff944c))
+
 ## 1.0.0 (2026-07-30)
 
 
