@@ -13,6 +13,7 @@ S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
 GAME_FOLDER_LOCATION=/data/game-backups
 GAME_BUCKET_NAME=game-backups
+GAME_BUCKET_FOLDER_NAME=backups
 GAME_MAX_BACKUPS=30
 ```
 
@@ -20,6 +21,7 @@ Notes:
 
 - `GAME_FOLDER_LOCATION` is the local directory the app reads backups from.
 - `GAME_BUCKET_NAME` is the S3 bucket used for uploads and cleanup.
+- `GAME_BUCKET_FOLDER_NAME` is the S3 key prefix used for uploads. Default: `backups`.
 - `GAME_MAX_BACKUPS` controls how many remote backups are kept.
 - The S3 client currently uses the `us-east-1` region in code.
 
@@ -61,6 +63,8 @@ Make sure `GAME_FOLDER_LOCATION` inside `.env` matches the path inside the conta
 ```env
 GAME_FOLDER_LOCATION=/data/game-backups
 ```
+
+If you want uploads at the bucket root instead of under a prefix like `backups/`, set `GAME_BUCKET_FOLDER_NAME` to an empty value in your env file.
 
 ## Releases
 
