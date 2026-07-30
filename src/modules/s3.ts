@@ -13,6 +13,7 @@ export class S3ClientInstance extends Effect.Service<S3ClientInstance>()("S3Serv
 
 		return new S3Client({
 			region: "us-east-1",
+			endpoint: env.endpoint.toString(),
 			credentials: {
 				accessKeyId: Redacted.value(env.s3AccessKeyId),
 				secretAccessKey: Redacted.value(env.s3SecretAccessKey),

@@ -3,6 +3,7 @@ import { Config, Context, Layer } from "effect";
 export const EnvConfig = Config.all({
 	s3AccessKeyId: Config.redacted(Config.string("S3_ACCESS_KEY_ID")),
 	s3SecretAccessKey: Config.redacted(Config.string("S3_SECRET_ACCESS_KEY")),
+	endpoint: Config.url("S3_ENDPOINT"),
 });
 
 export class GameBackupConfigService extends Context.Tag("GameConfig")<
