@@ -13,7 +13,8 @@ S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
 S3_ENDPOINT=https://s3.amazonaws.com
 S3_REGION=us-east-1
-GAME_FOLDER_LOCATION=/data/game-backups
+GAME_FOLDER_LOCATION=/data/backups
+GAME_LOG_FOLDER_LOCATION=/data/logs
 GAME_BUCKET_NAME=game-backups
 GAME_BUCKET_FOLDER_NAME=backups
 GAME_MAX_BACKUPS=30
@@ -22,6 +23,7 @@ GAME_MAX_BACKUPS=30
 Notes:
 
 - `GAME_FOLDER_LOCATION` is the local directory the app reads backups from.
+- `GAME_LOG_FOLDER_LOCATION` is the local directory the app writes log files to.
 - `GAME_BUCKET_NAME` is the S3 bucket used for uploads and cleanup.
 - `GAME_BUCKET_FOLDER_NAME` is the S3 key prefix used for uploads. Default: `backups`.
 - `GAME_MAX_BACKUPS` controls how many remote backups are kept.
@@ -58,14 +60,15 @@ Run it with your env file and a mounted backup directory:
 docker run --rm \
   --env-file .env \
   -v /host/game-backups-logs:/data/logs:rw \
-  -v /host/game-backups:/data/game-backups:ro \
+  -v /host/game-backups:/data/backups:ro \
   ghcr.io/terryhycheng/game-backup-script:latest
 ```
 
-Make sure `GAME_FOLDER_LOCATION` inside `.env` matches the path inside the container. With the example above, use:
+Make sure `GAME_FOLDER_LOCATION` and `GAME_LOG_FOLDER_LOCATION` inside `.env` match the paths inside the container. With the example above, use:
 
 ```env
-GAME_FOLDER_LOCATION=/data/game-backups
+GAME_FOLDER_LOCATION=/data/backups
+GAME_LOG_FOLDER_LOCATION=/data/logs
 ```
 
 The container writes log files under `/data/logs`. With the example above, those logs will be stored on the host at `/host/game-backups-logs`.
@@ -87,8 +90,6 @@ Version bumps come from conventional commits.
 ## Contributing
 
 This project is mainly built around [Effect](https://effect.website) for runtime composition, dependency injection, config loading, and error handling. If you are changing the core app flow, it helps to be comfortable with a few Effect concepts first. Checking on their [well-written docs](https://www.effect.website/docs/v3/getting-started/introduction) will help you a lot.
-
-
 
 Typical local workflow:
 
