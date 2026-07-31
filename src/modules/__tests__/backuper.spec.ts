@@ -72,6 +72,7 @@ describe("Backuper", () => {
 		);
 		const configLayer = Layer.succeed(GameBackupConfigService, {
 			folderLocation: "/backups",
+			logFolderLocation: "/logs",
 			bucketName: "test-bucket",
 			maxBackups: options.maxBackups ?? 2,
 		});
@@ -91,6 +92,8 @@ describe("Backuper", () => {
 			listObjects,
 			putObject,
 			deleteObject,
+			info,
+			error,
 		};
 	};
 
@@ -128,6 +131,7 @@ describe("Backuper", () => {
 
 			expect(harness.readFile).not.toHaveBeenCalled();
 			expect(harness.putObject).not.toHaveBeenCalled();
+			expect(harness.info).toHaveBeenCalledWith("no new backups to upload");
 		});
 
 		it("uploads all local files when s3 is empty", async () => {
@@ -141,6 +145,11 @@ describe("Backuper", () => {
 
 			expect(harness.readFile).toHaveBeenCalledTimes(2);
 			expect(harness.putObject).toHaveBeenCalledTimes(2);
+			expect(harness.info).toHaveBeenCalledWith("uploading 2 new backup(s)");
+			expect(harness.info).toHaveBeenCalledWith("backup-1.zip");
+			expect(harness.info).toHaveBeenCalledWith("backup-2.zip");
+			expect(harness.info).toHaveBeenCalledWith("uploaded backup-1.zip");
+			expect(harness.info).toHaveBeenCalledWith("uploaded backup-2.zip");
 		});
 
 		it("fails when reading the local backup directory fails", async () => {
@@ -161,6 +170,7 @@ describe("Backuper", () => {
 					expect(failure.value).toBe(error);
 				}
 			}
+			expect(harness.error).toHaveBeenCalledWith("failed to sync backups: readDirectory failed");
 		});
 
 		it("fails when reading one missing file fails", async () => {

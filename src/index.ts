@@ -24,10 +24,6 @@ const loggerLayer = Layer.provideMerge(Logger.Default, SharedLayers);
 
 const GameBackupLayers = Backuper.Default.pipe(Layer.provide(S3.Default), Layer.provideMerge(loggerLayer));
 
-const runnable = pipe(
-	program,
-	Effect.provide(GameBackupLayers),
-	Effect.tapErrorCause((cause) => Effect.logError(cause.toString())),
-);
+const runnable = pipe(program, Effect.provide(GameBackupLayers));
 
 NodeRuntime.runMain(runnable);

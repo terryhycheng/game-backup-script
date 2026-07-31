@@ -58,7 +58,12 @@ export class Backuper extends Effect.Service<Backuper>()("backuper", {
 				);
 			};
 
-			return pipe(checkBackupDifference(), Effect.tap(loggingResult), Effect.flatMap(uploadFiles));
+			return pipe(
+				checkBackupDifference(),
+				Effect.tap(loggingResult),
+				Effect.flatMap(uploadFiles),
+				Effect.tapError((error) => logger.error(`failed to sync backups: ${error.message}`)),
+			);
 		};
 
 		/**
@@ -93,7 +98,11 @@ export class Backuper extends Effect.Service<Backuper>()("backuper", {
 				);
 			};
 
-			return pipe(s3.listObjects(backupConfig.bucketName), Effect.flatMap(removeOldFiles));
+			return pipe(
+				s3.listObjects(backupConfig.bucketName),
+				Effect.flatMap(removeOldFiles),
+				Effect.tapError((error) => logger.error(`failed to clean up old backups: ${error.message}`)),
+			);
 		};
 
 		return { syncBackups, cleanUpOldBackups } as const;
