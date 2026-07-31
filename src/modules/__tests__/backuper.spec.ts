@@ -3,6 +3,7 @@ import { Cause, Effect, Exit, Layer } from "effect";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { GameBackupConfigService } from "../../configs";
 import { Backuper } from "../backuper";
+import { Logger } from "../logger";
 import { S3 } from "../s3";
 
 type RemoteFile = {
@@ -47,11 +48,20 @@ describe("Backuper", () => {
 			(bucketName: string, key: string) =>
 				options.deleteObjectImplementation?.(bucketName, key) ?? Effect.succeed({ bucketName, key }),
 		) as Mock;
+		const info = vi.fn((message: string) => Effect.succeed(message)) as Mock;
+		const error = vi.fn((message: string) => Effect.succeed(message)) as Mock;
 
 		const fileSystemLayer = Layer.succeed(FileSystem.FileSystem, {
 			readDirectory,
 			readFile,
 		} as never);
+		const loggerLayer = Layer.succeed(
+			Logger,
+			new Logger({
+				info,
+				error,
+			}),
+		);
 		const s3Layer = Layer.succeed(
 			S3,
 			new S3({
@@ -65,7 +75,7 @@ describe("Backuper", () => {
 			bucketName: "test-bucket",
 			maxBackups: options.maxBackups ?? 2,
 		});
-		const layer = Layer.provide(Backuper.Default, Layer.mergeAll(fileSystemLayer, s3Layer, configLayer));
+		const layer = Layer.provide(Backuper.Default, Layer.mergeAll(fileSystemLayer, loggerLayer, s3Layer, configLayer));
 
 		const getBackuper = () =>
 			Effect.runPromise(
