@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.2...game-backup-script-v1.2.0) (2026-07-31)
+
+
+### Features
+
+* add logger for create logs ([13c6d50](https://github.com/terryhycheng/game-backup-script/commit/13c6d5028babd133708b06b5e2e6323e0004ef73))
+
 ## [1.1.2](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.1...game-backup-script-v1.1.2) (2026-07-30)
 
 
