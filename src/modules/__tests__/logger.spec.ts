@@ -30,6 +30,7 @@ describe("Logger", () => {
 		} as never);
 		const configLayer = Layer.succeed(GameBackupConfigService, {
 			folderLocation: "/backups",
+			logFolderLocation: "/data/logs",
 			bucketName: "test-bucket",
 			bucketFolderName: options && "bucketFolderName" in options ? options.bucketFolderName : "palworld",
 			maxBackups: 2,
@@ -57,7 +58,7 @@ describe("Logger", () => {
 
 		expect(harness.writeFileString).toHaveBeenCalledTimes(1);
 		expect(harness.writeFileString).toHaveBeenCalledWith(
-			"/var/log/palworld/palworld-2026-07-31T13-00-01-234Z.log",
+			"/data/logs/palworld-2026-07-31T13-00-01-234Z.log",
 			"INFO 2026-07-31T13:00:01.234Z backup completed\n",
 			{ flag: "a" },
 		);
@@ -71,7 +72,7 @@ describe("Logger", () => {
 
 		expect(harness.writeFileString).toHaveBeenCalledTimes(1);
 		expect(harness.writeFileString).toHaveBeenCalledWith(
-			"/var/log/palworld/palworld-2026-07-31T13-00-01-234Z.log",
+			"/data/logs/palworld-2026-07-31T13-00-01-234Z.log",
 			"ERROR 2026-07-31T13:00:01.234Z upload failed\n",
 			{ flag: "a" },
 		);
@@ -106,7 +107,7 @@ describe("Logger", () => {
 		await Effect.runPromise(logger.info("backup completed"));
 
 		expect(harness.writeFileString).toHaveBeenCalledWith(
-			"/var/log/game-backup-script/game-backup-script-2026-07-31T13-00-01-234Z.log",
+			"/data/logs/game-backup-script-2026-07-31T13-00-01-234Z.log",
 			"INFO 2026-07-31T13:00:01.234Z backup completed\n",
 			{ flag: "a" },
 		);

@@ -57,6 +57,7 @@ Run it with your env file and a mounted backup directory:
 ```bash
 docker run --rm \
   --env-file .env \
+  -v /host/game-backups-logs:/data/logs:rw \
   -v /host/game-backups:/data/game-backups:ro \
   ghcr.io/terryhycheng/game-backup-script:latest
 ```
@@ -66,6 +67,8 @@ Make sure `GAME_FOLDER_LOCATION` inside `.env` matches the path inside the conta
 ```env
 GAME_FOLDER_LOCATION=/data/game-backups
 ```
+
+The container writes log files under `/data/logs`. With the example above, those logs will be stored on the host at `/host/game-backups-logs`.
 
 If you want uploads at the bucket root instead of under a prefix like `backups/`, set `GAME_BUCKET_FOLDER_NAME` to an empty value in your env file.
 
