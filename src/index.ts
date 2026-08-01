@@ -12,7 +12,7 @@ const program = Effect.gen(function* () {
 	const backuper = yield* Backuper;
 	const logger = yield* Logger;
 
-	return pipe(
+	return yield* pipe(
 		backuper.syncBackups(),
 		Effect.tap(() => backuper.cleanUpOldBackups()),
 		Effect.tapErrorCause((cause) => logger.error(cause.toString())),

@@ -27,7 +27,7 @@ export class S3 extends Effect.Service<S3>()("S3Service", {
 		const client = yield* S3ClientInstance;
 		const gameConfig = yield* GameBackupConfigService;
 		const listObjects = (bucketName: string) => {
-			const command = new ListObjectsCommand({ Bucket: bucketName });
+			const command = new ListObjectsCommand({ Bucket: bucketName, Prefix: `${gameConfig.bucketFolderName}/` });
 
 			return Effect.tryPromise({
 				try: () =>
@@ -48,7 +48,7 @@ export class S3 extends Effect.Service<S3>()("S3Service", {
 		const putObject = (bucketName: string, key: string, body: Uint8Array) => {
 			const command = new PutObjectCommand({
 				Bucket: bucketName,
-				Key: `${gameConfig.bucketFolderName ? `${gameConfig.bucketFolderName}/` : ""}${key}`,
+				Key: `${gameConfig.bucketFolderName}/${key}`,
 				Body: body,
 			});
 

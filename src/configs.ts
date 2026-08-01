@@ -13,7 +13,7 @@ export class GameBackupConfigService extends Context.Tag("GameConfig")<
 		readonly folderLocation: string;
 		readonly logFolderLocation: string;
 		readonly bucketName: string;
-		readonly bucketFolderName?: string;
+		readonly bucketFolderName: string;
 		readonly maxBackups: number;
 	}
 >() {}

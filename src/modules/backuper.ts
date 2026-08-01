@@ -31,7 +31,7 @@ export class Backuper extends Effect.Service<Backuper>()("backuper", {
 						if (s3Files.length === 0) return localFiles;
 
 						const s3Keys = s3Files.map((file) => file.key);
-						return localFiles.filter((file) => !s3Keys.includes(file));
+						return localFiles.filter((file) => !s3Keys.includes(`${backupConfig.bucketFolderName}/${file}`));
 					}),
 				);
 
