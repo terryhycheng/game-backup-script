@@ -74,6 +74,7 @@ describe("Backuper", () => {
 			folderLocation: "/backups",
 			logFolderLocation: "/logs",
 			bucketName: "test-bucket",
+			bucketFolderName: "palworld",
 			maxBackups: options.maxBackups ?? 2,
 		});
 		const layer = Layer.provide(Backuper.Default, Layer.mergeAll(fileSystemLayer, loggerLayer, s3Layer, configLayer));
@@ -101,7 +102,7 @@ describe("Backuper", () => {
 		it("uploads every local file missing from s3", async () => {
 			const harness = makeHarness({
 				localFiles: ["backup-1.zip", "backup-2.zip", "backup-3.zip"],
-				remoteFiles: [{ key: "backup-1.zip" }],
+				remoteFiles: [{ key: "palworld/backup-1.zip" }],
 			});
 
 			const backuper = await harness.getBackuper();
@@ -123,7 +124,7 @@ describe("Backuper", () => {
 		it("does nothing when every local file already exists in s3", async () => {
 			const harness = makeHarness({
 				localFiles: ["backup-1.zip", "backup-2.zip"],
-				remoteFiles: [{ key: "backup-1.zip" }, { key: "backup-2.zip" }],
+				remoteFiles: [{ key: "palworld/backup-1.zip" }, { key: "palworld/backup-2.zip" }],
 			});
 
 			const backuper = await harness.getBackuper();

@@ -22,8 +22,9 @@ describe("S3ServiceTests", () => {
 		mockLayer = Layer.succeed(S3ClientInstance, new S3ClientInstance(client));
 		gameBackupConfigLayer = Layer.succeed(GameBackupConfigService, {
 			folderLocation: "/tmp/backups",
+			logFolderLocation: "/tmp/logs",
 			bucketName: "test-bucket",
-			bucketFolderName: undefined,
+			bucketFolderName: "palworld",
 			maxBackups: 5,
 		});
 	});
@@ -37,7 +38,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const result = await Effect.runPromise(program);
 
@@ -48,7 +51,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(ListObjectsCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket" });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Prefix: "palworld/" });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
 			expect(result).toEqual(
@@ -64,7 +67,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const result = await Effect.runPromise(program);
 
@@ -75,7 +80,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(ListObjectsCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket" });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Prefix: "palworld/" });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
 			expect(result).toEqual([]);
@@ -90,7 +95,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const exit = await Effect.runPromiseExit(program);
 
@@ -119,7 +126,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.listObjects("test-bucket");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const exit = await Effect.runPromiseExit(program);
 
@@ -143,13 +152,13 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(ListObjectsCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket" });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Prefix: "palworld/" });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(ListObjectsCommand));
 		});
 	});
 
-		describe("putObject", () => {
+	describe("putObject", () => {
 		it("should put object", async () => {
 			(client.send as Mock).mockResolvedValueOnce("hello");
 
@@ -157,7 +166,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const result = await Effect.runPromise(program);
 
@@ -168,7 +179,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(PutObjectCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key", Body: new Uint8Array() });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "palworld/test-key", Body: new Uint8Array() });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
 			expect(result).toEqual("hello");
@@ -179,6 +190,7 @@ describe("S3ServiceTests", () => {
 			gameBackupConfigLayer = Layer.succeed(GameBackupConfigService, {
 				folderLocation: "/tmp/backups",
 				bucketName: "test-bucket",
+				logFolderLocation: "/tmp/logs",
 				bucketFolderName: "palworld",
 				maxBackups: 5,
 			});
@@ -187,7 +199,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const result = await Effect.runPromise(program);
 
@@ -211,7 +225,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.putObject("test-bucket", "test-key", new Uint8Array());
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			await expect(Effect.runPromise(program)).rejects.toThrow("failed to put object to s3");
 
@@ -222,7 +238,7 @@ describe("S3ServiceTests", () => {
 
 			const [command] = firstCall!;
 			expect(command).toBeInstanceOf(PutObjectCommand);
-			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "test-key", Body: new Uint8Array() });
+			expect(command.input).toEqual({ Bucket: "test-bucket", Key: "palworld/test-key", Body: new Uint8Array() });
 
 			expect(client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
 		});
@@ -236,7 +252,9 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.deleteObject("test-bucket", "test-key");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
 
 			const result = await Effect.runPromise(program);
 
@@ -260,8 +278,10 @@ describe("S3ServiceTests", () => {
 				const s3 = yield* S3;
 				const result = yield* s3.deleteObject("test-bucket", "test-key");
 				return result;
-			}).pipe(Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))));
-			
+			}).pipe(
+				Effect.provide(Layer.provide(S3.DefaultWithoutDependencies, Layer.merge(mockLayer, gameBackupConfigLayer))),
+			);
+
 			await expect(Effect.runPromise(program)).rejects.toThrow("failed to delete object from s3");
 
 			expect(client.send).toHaveBeenCalledTimes(1);

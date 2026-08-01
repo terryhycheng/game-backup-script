@@ -15,7 +15,7 @@ export class Logger extends Effect.Service<Logger>()("Logger", {
 
 			return pipe(
 				fs.writeFileString(`${gameConfig.logFolderLocation}/${logfileName}`, log, { flag: "a" }),
-				Effect.tap(() => Effect.sync(() => writeToConsole(message))),
+				Effect.tap(() => Effect.sync(() => writeToConsole(log.trimEnd()))),
 			);
 		};
 

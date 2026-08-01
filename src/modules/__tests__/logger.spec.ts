@@ -6,14 +6,20 @@ import { Logger } from "../logger";
 
 describe("Logger", () => {
 	const frozenNow = new Date("2026-07-31T13:00:01.234Z");
+	let logSpy: ReturnType<typeof vi.spyOn>;
+	let errorSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(frozenNow);
+		logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+		errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 	});
 
 	afterEach(() => {
 		vi.useRealTimers();
+		logSpy.mockRestore();
+		errorSpy.mockRestore();
 	});
 
 	const makeHarness = (options?: {
@@ -32,7 +38,7 @@ describe("Logger", () => {
 			folderLocation: "/backups",
 			logFolderLocation: "/data/logs",
 			bucketName: "test-bucket",
-			bucketFolderName: options && "bucketFolderName" in options ? options.bucketFolderName : "palworld",
+			bucketFolderName: options?.bucketFolderName ?? "palworld",
 			maxBackups: 2,
 		});
 		const layer = Layer.provide(Logger.Default, Layer.mergeAll(fileSystemLayer, configLayer));
@@ -62,6 +68,8 @@ describe("Logger", () => {
 			"INFO 2026-07-31T13:00:01.234Z backup completed\n",
 			{ flag: "a" },
 		);
+		expect(logSpy).toHaveBeenCalledWith("INFO 2026-07-31T13:00:01.234Z backup completed");
+		expect(errorSpy).not.toHaveBeenCalled();
 	});
 
 	it("writes error logs to the expected file with append mode", async () => {
@@ -76,6 +84,8 @@ describe("Logger", () => {
 			"ERROR 2026-07-31T13:00:01.234Z upload failed\n",
 			{ flag: "a" },
 		);
+		expect(errorSpy).toHaveBeenCalledWith("ERROR 2026-07-31T13:00:01.234Z upload failed");
+		expect(logSpy).not.toHaveBeenCalled();
 	});
 
 	it("propagates write errors from info logs", async () => {
@@ -98,16 +108,16 @@ describe("Logger", () => {
 		}
 	});
 
-	it("falls back to the default log folder name when bucketFolderName is undefined", async () => {
+	it("uses bucketFolderName in the log file name", async () => {
 		const harness = makeHarness({
-			bucketFolderName: undefined,
+			bucketFolderName: "custom-folder",
 		});
 		const logger = await harness.getLogger();
 
 		await Effect.runPromise(logger.info("backup completed"));
 
 		expect(harness.writeFileString).toHaveBeenCalledWith(
-			"/data/logs/game-backup-script-2026-07-31T13-00-01-234Z.log",
+			"/data/logs/custom-folder-2026-07-31T13-00-01-234Z.log",
 			"INFO 2026-07-31T13:00:01.234Z backup completed\n",
 			{ flag: "a" },
 		);
