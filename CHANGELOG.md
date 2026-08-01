@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.2.0...game-backup-script-v1.2.1) (2026-08-01)
+
+
+### Bug Fixes
+
+* incorrect file filter key, missing yield in index.ts and update logger to show logs on docker run ([28247dd](https://github.com/terryhycheng/game-backup-script/commit/28247ddf2b818fb34a7e1263344c6dc2eff674ca))
+
 ## [1.2.0](https://github.com/terryhycheng/game-backup-script/compare/game-backup-script-v1.1.2...game-backup-script-v1.2.0) (2026-07-31)
 
 
